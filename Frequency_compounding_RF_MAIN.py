@@ -7,6 +7,7 @@ Created on Fri Nov  3 08:46:23 2023
 
 import numpy as np
 import scipy.io as sio
+from scipy import signal as sig
 import sys
 import os
 import h5py
@@ -50,99 +51,29 @@ Num_Compounding_Channels=filterParams['Num_Compounding_Channels']
 # Filter1
 FcLo_1=filterParams['FcLo_1']
 FcHi_1=filterParams['FcHi_1']
-Weighting_1=filterParams['Weighting_1'];
-dB_Range1=filterParams['dB_Range1'];
+Weighting_1=filterParams['Weighting_1']
+dB_Range1=filterParams['dB_Range1']
 
 # Filter2
 FcLo_2=filterParams['FcLo_2']
 FcHi_2=filterParams['FcHi_2']
-Weighting_2=filterParams['Weighting_2'];
-dB_Range2=filterParams['dB_Range2'];
+Weighting_2=filterParams['Weighting_2']
+dB_Range2=filterParams['dB_Range2']
 
 # Filter3
 FcLo_3=filterParams['FcLo_3']
 FcHi_3=filterParams['FcHi_3']
-Weighting_3=filterParams['Weighting_3'];
-dB_Range3=filterParams['dB_Range3'];
+Weighting_3=filterParams['Weighting_3']
+dB_Range3=filterParams['dB_Range3']
 
 #print(comboParams)
 param = comboParams['ComboParam']
 beamformed = harmonic_data['Beamformed']
-print(param)
-
-# %  Find Maximum value in Beamformed
-Q=np.max(np.max(beamformed))
-
-print(Q)
 
 
 
-# % FUDGE factor: apply digital gain to overcome weak signal from FrontEnd
-# DGain = (32767/(4*Q));
-# %DGain=1;
-# Beamformed = DGain*Beamformed;
-# param.gridNum = size(Beamformed,1);
 
-# Fs=param.fs
-
-
-print(filter_order)
-print(dB_Range)
-sys.exit(1)
-
-
-
-# path='C:\Users\DavidRoundhill\DavidFiles\SimulationTool\L7-4_Data\';
-# %load([path,'L7-4_Beamformed_data_A.mat']);
-# %load([path,'L7-4_Beamformed_data.mat']);
-
-# path='C:\Users\DavidRoundhill\DavidFiles\SimulationTool\C4-2_Data\';
-# % load([path,'C4-2_Fundamental.mat']);
-
-# load([path,'C4-2_Harmonic.mat']);
-# load([path,'ComboParams.mat']);
-
-
-# %% GET FILTER PARAMETERS %%
-# load([path,'FilterParam_C4-2_Harmonic.mat'])
-# %load([path,'FilterParam_C4-2_Fundamental.mat'])
-# %load([path,'FilterParam_L7-4.mat'])
-
-# % C4_2 Harmonic Data
-# Filter_Order=FilterParam.Filter_Order;
-# %parameters for non-compounded image
-# %Filter0
-# FcLo_0=FilterParam.FcLo_0;
-# FcHi_0=FilterParam.FcHi_0;
-# Weighting_0=FilterParam.Weighting_0;
-# dB_Range=FilterParam.dB_Range;
-
-
-
-# % Compounding Channels, using filters 1, 2 and 3 (where number of channels
-# % to be compounded is variable from 1 to 3)
-# % 
-# Num_Compounding_Channels=FilterParam.Num_Compounding_Channels;
-
-# %Filter1
-# FcLo_1=FilterParam.FcLo_1;
-# FcHi_1=FilterParam.FcHi_1;
-# Weighting_1=FilterParam.Weighting_1;
-# dB_Range1=FilterParam.dB_Range1;
-
-# %Filter2
-# FcLo_2=FilterParam.FcLo_2;
-# FcHi_2=FilterParam.FcHi_2;
-# Weighting_2=FilterParam.Weighting_2;
-# dB_Range2=FilterParam.dB_Range2;
-
-# %Filter3
-# FcLo_3=FilterParam.FcLo_3;
-# FcHi_3=FilterParam.FcHi_3;
-# Weighting_3=FilterParam.Weighting_3;
-# dB_Range3=FilterParam.dB_Range3;
-
-# %Edit Values here as desired
+# Edit Values here as desired
 
 
 # Num_Compounding_Channels=3
@@ -168,47 +99,49 @@ sys.exit(1)
 # Weighting_3=Weighting_3
 # dB_Range3=dB_Range3
 
-# param = ComboParam;
+
+
 
 # %  Find Maximum value in Beamformed
-# Q=max(max(Beamformed));
+Q=np.max(np.max(beamformed))
 
-# % FUDGE factor: apply digital gain to overcome weak signal from FrontEnd
-# DGain = (32767/(4*Q));
-# %DGain=1;
-# Beamformed = DGain*Beamformed;
-# param.gridNum = size(Beamformed,1);
+# FUDGE factor: apply digital gain to overcome weak signal from FrontEnd
+DGain = (32767/(4*Q))
+# DGain = 1
+beamformed = DGain*beamformed
 
-# Fs=param.fs
+#param.gridNum = size(Beamformed,1);
+param['gridNum'] = beamformed.shape[0]
 
-# %define location for figures
-
-# p = get(0, "MonitorPositions");
-# Position = p(2, :); % second display
-# Position = [Position(1)+100,Position(2)+300, Position(3)/4, Position(4)/2 ];
+Fs = param['fs']
 
 
-# %% Post beamformer processing
-# % --- lateral interpolation, 4x128 512
+# Post beamformer processing
+# --- lateral interpolation, 4x128 512
 
 
-# % Compute interpolation filter coefficients
-# InterpFactor=4;
-# x=param.x_ele(1,:); % To be reconstructed pixel coordinates
-# x_interp=interp1(1:length(x),x,[1:1/InterpFactor:length(x)],'linear');
+# Compute interpolation filter coefficients
+interpFactor=4;
+x=param['x_ele'] # To be reconstructed pixel coordinates
+interp_points = np.arange(0,len(x), 1.0/interpFactor)
+x_interp = np.interp(interp_points, np.arange(len(x)), x)
+
 # % Low pass filtering for post-interpolation
-# lat_fs=1/(x_interp(2)-x_interp(1));
-# lat_cutoff=0.5*1/(x(2)-x(1));
-# [b,a] = butter(12,lat_cutoff/(lat_fs/2));
+lat_fs=1/(x_interp[1]-x_interp[0])
+lat_cutoff=0.5*1/(x[1]-x[0])
+
+#b, a  = sig.butter(12, lat_cutoff/(lat_fs/2))
+sos = sig.butter(12, lat_cutoff/(lat_fs/2), output='sos')
 
 
+beamformed_interp = np.zeros((beamformed.shape[0],len(interp_points)))
+for nrow in range(beamformed.shape[0]):
+    interpRow = np.interp(x_interp, np.arange(len(x)), beamformed[nrow,:].flatten())
+    interpRow_filt = sig.sosfilt(sos, interpRow)
+    beamformed_interp[nrow,:]=(interpRow_filt)
+    
+sys.exit(1)
 
-# for nrow=1:size(Beamformed,1)
-#     currentRow=Beamformed(nrow,:);
-#     interpRow=interp1(x,currentRow,x_interp,'linear');
-#     interpRow_filt=filtfilt(b,a,interpRow);  
-#     Beamformed_Interp(nrow,:)=interpRow;
-# end
 
 # Lateral_Line_Count = size(Beamformed_Interp,2);
 
