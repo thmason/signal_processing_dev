@@ -10,11 +10,14 @@ import matplotlib.pyplot as plt
 import scipy.io as sio
 from scipy import signal as sig
 from scipy import interpolate
+import math_utilities as mu
 
 import sys
 import os
 import h5py
 import mat73
+
+
 
 fundamental_filename = './data/C4-2_Fundamental.mat'
 harmonic_filename = './data/C4-2_Harmonic.mat'
@@ -29,7 +32,7 @@ filterParams_C4_2_Harmonic = mat73.loadmat(filterParams_filename)
 comboParams = mat73.loadmat(comboParams_filename)
 
 
-    
+plt.close('all')    
 # gamma is used to creat a "poor man's" grayscale map" using the matlab function, imadjust
 gamme = 1.6
 
@@ -136,7 +139,7 @@ x_interp = interpolator(interp_points)
 lat_fs=1/(x_interp[1]-x_interp[0])
 lat_cutoff=0.5*1/(x[1]-x[0])
 
-#b, a  = sig.butter(12, lat_cutoff/(lat_fs/2))
+b, a  = sig.butter(12, lat_cutoff/(lat_fs/2))
 sos = sig.butter(12, lat_cutoff/(lat_fs/2), output='sos')
 
 
@@ -146,27 +149,27 @@ for nrow in range(beamformed.shape[0]):
     
     # set interpolater
     interpolator = interpolate.interp1d(x, beamformed[nrow,:].flatten())
-    interpRow = interpolator(x_interp)
-    
-    #interpRow = interpolate.interp1d(x_interp, np.arange(len(x)), beamformed[nrow,:].flatten())
-    interpRow_filt = sig.sosfilt(sos, interpRow)
-    beamformed_interp[nrow,:]=(interpRow_filt)
-
-plt.figure()
-for nrow in range(beamformed_interp.shape[0]):
-    plt.plot(beamformed_interp[nrow,:])
-sys.exit(1)
+    interpRow = interpolator(x_interp)    
+    #interpRow_filt = sig.sosfilt(sos, interpRow)
+    interpRow_filt = sig.filtfilt(b, a, interpRow) # for some reason this isn't being stored in an array??    
+    beamformed_interp[nrow,:]=(interpRow)
 
 
-# Lateral_Line_Count = size(Beamformed_Interp,2);
 
+Lateral_Line_Count = beamformed_interp.shape[1]
+
+
+# **********   below function only seems to process the first row ********
+FFT = mu.fourierFFT(beamformed_interp,param['gridNum'])
 # FFT=FourierFFT(Beamformed_Interp,param.gridNum);
 
 # BeamformedSpectralContent=SGF(FFT);
 
-# %% --- Filter0 (Used for non compounded image)
-# Hd0=FilterBPF(Filter_Order,FcLo_0,FcHi_0,Fs);
-# Beamformed_Filtered0 = Weighting_0*filter(Hd0,Beamformed_Interp);
+# --- Filter0 (Used for non compounded image)
+sos = sig.butter(12, lat_cutoff/(lat_fs/2), output='sos')
+
+Hd0=FilterBPF(Filter_Order,FcLo_0,FcHi_0,Fs);
+Beamformed_Filtered0 = Weighting_0*filter(Hd0,Beamformed_Interp);
 
 # %% --- Filter1
 # Hd1=FilterBPF(Filter_Order,FcLo_1,FcHi_1,Fs);
