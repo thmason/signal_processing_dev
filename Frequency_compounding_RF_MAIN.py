@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io as sio
 from scipy import signal as sig
+from scipy import interpolate
 
 import sys
 import os
@@ -125,8 +126,11 @@ Fs = param['fs']
 # Compute interpolation filter coefficients
 interpFactor=4;
 x=param['x_ele'] # To be reconstructed pixel coordinates
-interp_points = np.arange(0,len(x), 1.0/interpFactor)
-x_interp = np.interp(interp_points, np.arange(len(x)), x)
+step_size = 1.0/interpFactor
+interp_points = np.arange(1,len(x) + step_size, step_size)
+interpolator = interpolate.interp1d(np.arange(1,len(x)+1), x)
+x_interp = interpolator(interp_points)
+
 
 # % Low pass filtering for post-interpolation
 lat_fs=1/(x_interp[1]-x_interp[0])
@@ -137,8 +141,14 @@ sos = sig.butter(12, lat_cutoff/(lat_fs/2), output='sos')
 
 
 beamformed_interp = np.zeros((beamformed.shape[0],len(interp_points)))
+
 for nrow in range(beamformed.shape[0]):
-    interpRow = np.interp(x_interp, np.arange(len(x)), beamformed[nrow,:].flatten())
+    
+    # set interpolater
+    interpolator = interpolate.interp1d(x, beamformed[nrow,:].flatten())
+    interpRow = interpolator(x_interp)
+    
+    #interpRow = interpolate.interp1d(x_interp, np.arange(len(x)), beamformed[nrow,:].flatten())
     interpRow_filt = sig.sosfilt(sos, interpRow)
     beamformed_interp[nrow,:]=(interpRow_filt)
 
