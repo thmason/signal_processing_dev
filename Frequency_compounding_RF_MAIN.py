@@ -6,8 +6,10 @@ Created on Fri Nov  3 08:46:23 2023
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
 import scipy.io as sio
 from scipy import signal as sig
+
 import sys
 import os
 import h5py
@@ -139,7 +141,10 @@ for nrow in range(beamformed.shape[0]):
     interpRow = np.interp(x_interp, np.arange(len(x)), beamformed[nrow,:].flatten())
     interpRow_filt = sig.sosfilt(sos, interpRow)
     beamformed_interp[nrow,:]=(interpRow_filt)
-    
+
+plt.figure()
+for nrow in range(beamformed_interp.shape[0]):
+    plt.plot(beamformed_interp[nrow,:])
 sys.exit(1)
 
 
