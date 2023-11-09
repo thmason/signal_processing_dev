@@ -166,10 +166,10 @@ FFT = mu.fourierFFT(beamformed_interp,param['gridNum'])
 # BeamformedSpectralContent=SGF(FFT);
 
 # --- Filter0 (Used for non compounded image)
-sos = sig.butter(12, lat_cutoff/(lat_fs/2), output='sos')
 
-Hd0=FilterBPF(Filter_Order,FcLo_0,FcHi_0,Fs);
-Beamformed_Filtered0 = Weighting_0*filter(Hd0,Beamformed_Interp);
+Hd0=mu.filterBPF(filter_order,FcLo_0,FcHi_0,Fs)
+sys.exit(1)
+#Beamformed_Filtered0 = Weighting_0*filter(Hd0,Beamformed_Interp);
 
 # %% --- Filter1
 # Hd1=FilterBPF(Filter_Order,FcLo_1,FcHi_1,Fs);
