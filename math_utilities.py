@@ -6,6 +6,9 @@ Created on Thu Nov  9 15:55:44 2023
 """
 
 import numpy as np
+from scipy import signal as sig
+import sys
+
 
 def fourierFFT(beamformed_interp, gridNum):
     """
@@ -59,11 +62,10 @@ def filterBPF(N,Fc1,Fc2,Fs):
     flag = 'scale'    # sampling flat
     
     # Create the window vector for the design algorithm.
-    # win = hann(N+1);
-    winn = np.hanning(N+1)
+    win = sig.get_window('hann', N+1)
+    # Calculate the coefficients using the firwin function.
+    b = sig.firwin(N, np.array([Fc1, Fc2])/(Fs/2), width=41, window='hanning', scale=flag)
+    sys.exit(1)
+    #Hd = dfilt.dffir(b);
     
-    # Calculate the coefficients using the FIR1 function.
-    b  = fir1(N, [Fc1 Fc2]/(Fs/2), 'bandpass', win, flag);
-    Hd = dfilt.dffir(b);
-    
-    % [EOF]
+

@@ -41,11 +41,11 @@ gamme = 1.6
 filterParams = filterParams_C4_2_Harmonic['FilterParam']
 
 # C4_2 Harmonic Data
-filter_order = filterParams['Filter_Order']
+filter_order = int(float(str(filterParams['Filter_Order'])))
 # parameters for non-compounded image
 # Filter0
-FcLo_0=filterParams['FcLo_0']
-FcHi_0=filterParams['FcHi_0']
+FcLo_0=float(filterParams['FcLo_0'])
+FcHi_0=float(filterParams['FcHi_0'])
 Weighting_0=filterParams['Weighting_0']
 dB_Range=filterParams['dB_Range']
 
@@ -119,7 +119,7 @@ beamformed = DGain*beamformed
 #param.gridNum = size(Beamformed,1);
 param['gridNum'] = beamformed.shape[0]
 
-Fs = param['fs']
+Fs = float(param['fs'])
 
 
 # Post beamformer processing
