@@ -57,15 +57,11 @@ def filterBPF(N,Fc1,Fc2,Fs):
     -------
     None.
 
-    """
-    
-    flag = 'scale'    # sampling flat
-    
-    # Create the window vector for the design algorithm.
-    win = sig.get_window('hann', N+1)
+    """    
+
     # Calculate the coefficients using the firwin function.
-    b = sig.firwin(N, np.array([Fc1, Fc2])/(Fs/2), width=41, window='hanning', scale=flag)
-    sys.exit(1)
-    #Hd = dfilt.dffir(b);
+    b = sig.firwin(N+1,  np.array([Fc1, Fc2])/(Fs/2), window='hann', pass_zero=False, scale = True)
+    return(b)
+    
     
 

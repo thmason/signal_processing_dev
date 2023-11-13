@@ -46,8 +46,8 @@ filter_order = int(float(str(filterParams['Filter_Order'])))
 # Filter0
 FcLo_0=float(filterParams['FcLo_0'])
 FcHi_0=float(filterParams['FcHi_0'])
-Weighting_0=filterParams['Weighting_0']
-dB_Range=filterParams['dB_Range']
+Weighting_0=float(filterParams['Weighting_0'])
+dB_Range=float(filterParams['dB_Range'])
 
 # Compounding Channels, using filters 1, 2 and 3 (where number of channels
 # to be compounded is variable from 1 to 3)
@@ -55,22 +55,22 @@ dB_Range=filterParams['dB_Range']
 Num_Compounding_Channels=filterParams['Num_Compounding_Channels']
 
 # Filter1
-FcLo_1=filterParams['FcLo_1']
-FcHi_1=filterParams['FcHi_1']
-Weighting_1=filterParams['Weighting_1']
-dB_Range1=filterParams['dB_Range1']
+FcLo_1=float(filterParams['FcLo_1'])
+FcHi_1=float(filterParams['FcHi_1'])
+Weighting_1=float(filterParams['Weighting_1'])
+dB_Range1=float(filterParams['dB_Range1'])
 
 # Filter2
-FcLo_2=filterParams['FcLo_2']
-FcHi_2=filterParams['FcHi_2']
-Weighting_2=filterParams['Weighting_2']
-dB_Range2=filterParams['dB_Range2']
+FcLo_2=float(filterParams['FcLo_2'])
+FcHi_2=float(filterParams['FcHi_2'])
+Weighting_2=float(filterParams['Weighting_2'])
+dB_Range2=float(filterParams['dB_Range2'])
 
 # Filter3
-FcLo_3=filterParams['FcLo_3']
-FcHi_3=filterParams['FcHi_3']
-Weighting_3=filterParams['Weighting_3']
-dB_Range3=filterParams['dB_Range3']
+FcLo_3=float(filterParams['FcLo_3'])
+FcHi_3=float(filterParams['FcHi_3'])
+Weighting_3=float(filterParams['Weighting_3'])
+dB_Range3=float(filterParams['dB_Range3'])
 
 #print(comboParams)
 param = comboParams['ComboParam']
@@ -166,25 +166,26 @@ FFT = mu.fourierFFT(beamformed_interp,param['gridNum'])
 # BeamformedSpectralContent=SGF(FFT);
 
 # --- Filter0 (Used for non compounded image)
-
-Hd0=mu.filterBPF(filter_order,FcLo_0,FcHi_0,Fs)
-sys.exit(1)
-#Beamformed_Filtered0 = Weighting_0*filter(Hd0,Beamformed_Interp);
+filter_taps = mu.filterBPF(filter_order,FcLo_0,FcHi_0,Fs)
+beamformed_Filtered0 = Weighting_0*sig.lfilter(filter_taps, 1, beamformed_interp, axis=0)
 
 # %% --- Filter1
-# Hd1=FilterBPF(Filter_Order,FcLo_1,FcHi_1,Fs);
-# Beamformed_Filtered1 = Weighting_1*filter(Hd1,Beamformed_Interp);
+filter_taps1 = mu.filterBPF(filter_order,FcLo_1,FcHi_1,Fs)
+beamformed_Filtered1 = Weighting_1*sig.lfilter(filter_taps1, 1, beamformed_interp, axis=0)
 
 # %% --- Filter2
-# Hd2=FilterBPF(Filter_Order,FcLo_2,FcHi_2,Fs);
-# Beamformed_Filtered2 = Weighting_2*filter(Hd2,Beamformed_Interp);
+filter_taps2 = mu.filterBPF(filter_order,FcLo_2,FcHi_2,Fs)
+beamformed_Filtered2 = Weighting_2*sig.lfilter(filter_taps2, 1, beamformed_interp, axis=0)
 
 # %% --- Filter3
-# Hd3=FilterBPF(Filter_Order,FcLo_3,FcHi_3,Fs);
-# Beamformed_Filtered3 = Weighting_3*filter(Hd3,Beamformed_Interp);
+filter_taps3 = mu.filterBPF(filter_order,FcLo_3,FcHi_3,Fs)
+beamformed_Filtered3 = Weighting_3*sig.lfilter(filter_taps3, 1, beamformed_interp, axis=0)
 
 
-# FFT1=FourierFFT(Beamformed_Filtered1,param.gridNum);
+FFT = mu.fourierFFT(beamformed_Filtered1,param['gridNum'])
+sys.exit(1)
+#BeamformedSpectralContent1=SGF(FFT1);
+# FFT1=FourierFFT(beamformed_Filtered1,param.gridNum);
 # BeamformedSpectralContent1=SGF(FFT1);
 
 # FFT2=FourierFFT(Beamformed_Filtered2,param.gridNum);
