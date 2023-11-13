@@ -192,64 +192,53 @@ FFT3 = mu.fourierFFT(beamformed_Filtered3,param['gridNum'])
 beamformedSpectralContent3 = mu.SGF(FFT3)
 
 
-sys.exit(1)
-# figure(3);
+fig, ax = plt.subplots(2,1)
 
-# set(gcf,'units','pixels','position', Position);
+f = Fs/param['gridNum']*np.arange(0,param['gridNum']/2 + 1)
+ax[0].plot(f, FFT[:,0])
+ax[0].set_title('Single-Sided Amplitude Spectrum')
+ax[0].set_xlabel('f (MHz)')
+ax[0].set_ylabel('|P1(f)|')
 
-# clf;
+ax2 = ax[0].twinx()
+ax2.set_ylabel('db')
 
-# subplot(2,1,1)
-# hold on
+if Num_Compounding_Channels == 1 :
+    pass
+elif Num_Compounding_Channels == 2 :
+    pass
+elif Num_Compounding_Channels == 3 :
+    w, h = sig.freqz(filter_taps1,  fs=Fs)
+    ax2.plot(w, 20 * np.log10(np.abs(h)), label='filter 1')
 
-# yyaxis right
-# f = Fs/param.gridNum*(0:(param.gridNum/2));
-# plot(f,FFT,"LineWidth",1, "color", [0.75,0.75,0.75]) 
-# title("Single-Sided Amplitude Spectrum")
-# xlabel("f (MHz)")
-# ylabel("|P1(f)|") 
+    w, h = sig.freqz(filter_taps2,  fs=Fs)
+    ax2.plot(w, 20 * np.log10(np.abs(h)), label = 'filter 2')
 
-# yyaxis left
-# ylabel("dB")
-# f = Fs/param.gridNum*(0:(param.gridNum/2));
-
-# if Num_Compounding_Channels == 1
-#     [h,w] = freqz(Hd1,nrow,Fs);
-     
-#     plot(w,mag2db(abs(h)),"LineWidth",1,"color", [0,1,0])
+    w, h = sig.freqz(filter_taps3,  fs=Fs)
+    ax2.plot(w, 20 * np.log10(np.abs(h)), label = 'filter 3')    
     
-#     legend("Filter1","FFT")
+    ax2.legend()
 
 
-# elseif Num_Compounding_Channels==2
-#     [h,w] = freqz(Hd1,nrow,Fs);
+
+ax[1].plot(f, FFT[:,0])
+ax[1].set_title('Single-Sided Amplitude Spectrum')
+#ax[1].set_xlabel('f (MHz)')
+#ax[1].set_ylabel('|P1(f)|')
+
+ax_1_left = ax[1].twinx()
+
+if Num_Compounding_Channels == 1 :
+    pass
+elif Num_Compounding_Channels == 2 :
+    pass
+elif Num_Compounding_Channels == 3 :
+    ax_1_left.plot(f, beamformedSpectralContent1[:,0], label = 'Filter 1')
+
+    ax2.legend()
+
         
-#     plot(w,mag2db(abs(h)),"LineWidth",1,"color", [0,1,0])
-    
-#     [h,w] = freqz(Hd2,nrow,Fs);
-    
-#     plot(w,mag2db(abs(h)),"LineWidth",1,"color", [0,0,1])
-#     legend("Filter1","Filter2","FFT")
-
-
-# else
-#     [h,w] = freqz(Hd1,nrow,Fs);   
-#     plot(w,mag2db(abs(h)),"LineWidth",1,"color", [0,1,0])
-    
-#     [h,w] = freqz(Hd2,nrow,Fs);
-#     plot(w,mag2db(abs(h)),"LineWidth",1,"color", [0,0,1])
-  
-#     [h,w] = freqz(Hd3,nrow,Fs);
-#     plot(w,mag2db(abs(h)),"LineWidth",1,"color", [0.25,0.5,0.5])
-    
-#     legend("Filter1","Filter2","Filter3","FFT")
-
-# end
-
-# yyaxis left
-# ylabel("dB")
-
-
+sys.exit(1)
 # hold off
 # subplot(2,1,2)
 # xlabel("f (MHz)")
