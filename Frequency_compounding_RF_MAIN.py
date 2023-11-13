@@ -182,18 +182,17 @@ filter_taps3 = mu.filterBPF(filter_order,FcLo_3,FcHi_3,Fs)
 beamformed_Filtered3 = Weighting_3*sig.lfilter(filter_taps3, 1, beamformed_interp, axis=0)
 
 
-FFT = mu.fourierFFT(beamformed_Filtered1,param['gridNum'])
+FFT1 = mu.fourierFFT(beamformed_Filtered1,param['gridNum'])
+beamformedSpectralContent1 = mu.SGF(FFT1)
+
+FFT2 = mu.fourierFFT(beamformed_Filtered2,param['gridNum'])
+beamformedSpectralContent2 = mu.SGF(FFT2)
+
+FFT3 = mu.fourierFFT(beamformed_Filtered3,param['gridNum'])
+beamformedSpectralContent3 = mu.SGF(FFT3)
+
+
 sys.exit(1)
-#BeamformedSpectralContent1=SGF(FFT1);
-# FFT1=FourierFFT(beamformed_Filtered1,param.gridNum);
-# BeamformedSpectralContent1=SGF(FFT1);
-
-# FFT2=FourierFFT(Beamformed_Filtered2,param.gridNum);
-# BeamformedSpectralContent2=SGF(FFT2);
-
-# FFT3=FourierFFT(Beamformed_Filtered3,param.gridNum);
-# BeamformedSpectralContent3=SGF(FFT3);
-
 # figure(3);
 
 # set(gcf,'units','pixels','position', Position);

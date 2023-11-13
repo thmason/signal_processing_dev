@@ -27,7 +27,7 @@ def fourierFFT(beamformed_interp, gridNum):
         DESCRIPTION.
 
     """
-    Y = np.fft.fft(beamformed_interp,axis=1)
+    Y = np.fft.fft(beamformed_interp,axis=0)
     P2 = np.abs(Y/gridNum)    
     P1 = P2[:int(np.floor(gridNum/2.0)+1)]
     P1[1:-2] = 2*P1[1:-2]
@@ -63,5 +63,8 @@ def filterBPF(N,Fc1,Fc2,Fs):
     b = sig.firwin(N+1,  np.array([Fc1, Fc2])/(Fs/2), window='hann', pass_zero=False, scale = True)
     return(b)
     
+def SGF(FFT):
+    SFG = sig.savgol_filter(FFT, window_length=101, polyorder=5, axis=0)
+    return SFG
     
 
