@@ -161,9 +161,7 @@ Lateral_Line_Count = beamformed_interp.shape[1]
 
 # **********   below function only seems to process the first row ********
 FFT = mu.fourierFFT(beamformed_interp,param['gridNum'])
-# FFT=FourierFFT(Beamformed_Interp,param.gridNum);
-
-# BeamformedSpectralContent=SGF(FFT);
+beamformedSpectralContent=mu.SGF(FFT);
 
 # --- Filter0 (Used for non compounded image)
 filter_taps = mu.filterBPF(filter_order,FcLo_0,FcHi_0,Fs)
@@ -221,98 +219,67 @@ elif Num_Compounding_Channels == 3 :
 
 
 
-ax[1].plot(f, FFT[:,0])
+ax[1].plot(f, FFT[:,0], label = 'FFT')
+ax[1].plot(f, beamformedSpectralContent[:,0], label='FFTSG')
 ax[1].set_title('Single-Sided Amplitude Spectrum')
-#ax[1].set_xlabel('f (MHz)')
-#ax[1].set_ylabel('|P1(f)|')
+ax[1].set_xlabel('f (MHz)')
+ax[1].set_ylabel('|P1(f)|')
 
-ax_1_left = ax[1].twinx()
+#ax_1_left = ax[1].twinx()
 
 if Num_Compounding_Channels == 1 :
     pass
 elif Num_Compounding_Channels == 2 :
     pass
 elif Num_Compounding_Channels == 3 :
-    ax_1_left.plot(f, beamformedSpectralContent1[:,0], label = 'Filter 1')
-
-    ax2.legend()
-
-        
-sys.exit(1)
-# hold off
-# subplot(2,1,2)
-# xlabel("f (MHz)")
-
-# hold on
-
-# plot(f,FFT,"LineWidth",1, "color", [0.75,0.75,0.75]) 
-
-# plot(f,BeamformedSpectralContent,"LineWidth",1.5, "color",[1,0,0])
-
-# if Num_Compounding_Channels == 1
-# plot(f,BeamformedSpectralContent1,"LineWidth",1.5, "color",[0,1,0])
-# legend('FFT','FFTSG',"Filtered1")
+    ax[1].plot(f, beamformedSpectralContent1[:,0], label = 'Filter 1')
+    ax[1].plot(f, beamformedSpectralContent2[:,0], label = 'Filter 3')
+    ax[1].plot(f, beamformedSpectralContent3[:,0], label = 'Filter 4')
+    ax[1].legend()
 
 
-# elseif Num_Compounding_Channels==2
-# plot(f,BeamformedSpectralContent1,"LineWidth",1.5, "color",[0,1,0])
-# plot(f,BeamformedSpectralContent2,"LineWidth",1.5, "color",[0,0,1])
-# legend('FFT','FFTSG',"Filtered1","Filtered2")
+# Envelop detection (abs and Hilbert returns amplitude detected)
+beamformed_env_0=np.abs(sig.hilbert(beamformed_Filtered0, axis=0))
+beamformed_env_1=np.abs(sig.hilbert(beamformed_Filtered1, axis=0))
+beamformed_env_2=np.abs(sig.hilbert(beamformed_Filtered2, axis=0))
+beamformed_env_3=np.abs(sig.hilbert(beamformed_Filtered3, axis=0))
 
-# else
-# plot(f,BeamformedSpectralContent1,"LineWidth",1.5, "color",[0,1,0])
-# plot(f,BeamformedSpectralContent2,"LineWidth",1.5, "color",[0,0,1])
-# plot(f,BeamformedSpectralContent3,"LineWidth",1.5, "color",[.25,.5,.5])
-# legend('FFT','FFTSG',"Filtered1","Filtered2","Filtered3")
+# log compression
+log_env_0 = Weighting_0*mu.compress(dB_Range1,beamformed_env_0)
+log_env_1 = Weighting_0*mu.compress(dB_Range1,beamformed_env_1)
+log_env_2 = Weighting_0*mu.compress(dB_Range2,beamformed_env_2)
+log_env_3 = Weighting_0*mu.compress(dB_Range3,beamformed_env_3)
 
+if Num_Compounding_Channels == 1:
+    channel_1 = 1
+    channel_2 = 0
+    channel_3 = 0;
+elif Num_Compounding_Channels == 2:
+    channel_1 = 1
+    channel_2 = 1
+    channel_3 = 0
+elif Num_Compounding_Channels == 3:
+    channel_1 = 1
+    channel_2 = 1
+    channel_3 = 0
+else:
+    channel_1 = 1
+    channel_2 = 1
+    channel_3 = 1
 
-# end
+tempParams={}
+tempParams['channel_1'] = channel_1
+tempParams['channel_2'] = channel_2
+tempParams['channel_3'] = channel_3
 
-# hold off
-
-# % --- Envelop detection (abs and Hilbert returns amplitude detected)
-# Beamformed_env_0=abs(hilbert(Beamformed_Filtered0));
-# Beamformed_env_1=abs(hilbert(Beamformed_Filtered1));
-# Beamformed_env_2=abs(hilbert(Beamformed_Filtered2));
-# Beamformed_env_3=abs(hilbert(Beamformed_Filtered3));
-
-# % --- log compression0
-# log_env_0 = Weighting_0*Compress(dB_Range1,Beamformed_env_0);
-
-# % --- log compression1
-# log_env_1 = Weighting_1*Compress(dB_Range1,Beamformed_env_1);
-
-# % --- log compression2
-# log_env_2 = Weighting_2*Compress(dB_Range2,Beamformed_env_2);
-
-# % --- log compression3
-# log_env_3 = Weighting_3*Compress(dB_Range3,Beamformed_env_3);
-
-# if Num_Compounding_Channels == 1
-#     Channel_1 = 1; Channel_2=0; Channel_3=0;
-
-# elseif Num_Compounding_Channels==2
-#     Channel_1 = 1; Channel_2=1; Channel_3=0;
-
-# else
-#     Channel_1 = 1; Channel_2=1; Channel_3=1;
-
-# end
-
-# TempParams.Channel_1 = Channel_1;
-# TempParams.Channel_2 = Channel_2;
-# TempParams.Channel_3 = Channel_3;
-
-# %Initialize Gain levels
-# Gain=50;
-# %envelope gain for NonCompounded
-# TempParams.Gain1 = Gain;
-# %envelope gain for Compounded
-# TempParams.Gain2 = Gain;
-# TempParams.Num_Compounding_Channels = Num_Compounding_Channels;
-# TempParams.gamma = gamma;
-
-# TempParams.Lateral_Line_Count = Lateral_Line_Count;
+# Initialize Gain levels
+gain=50;
+# envelope gain for NonCompounded
+tempParams['gain1'] = gain;
+tempParams['gain2'] = gain;
+tempParams['Num_Compounding_Channels'] = Num_Compounding_Channels
+tempParams['gamma'] = gamma;
+tempParams['lateral_line_count'] = Lateral_Line_Count
 
 # path='C:\Users\DavidRoundhill\DavidFiles\SimulationTool\AE_FC_Line_Processor\';
 
@@ -344,7 +311,12 @@ sys.exit(1)
 # set(txt1,'String',num2str(Gain));
 # set(txt2,'String',num2str(Gain));
 
-# env_disp = Image(3*TempParams.Gain1,log_env_0,TempParams.Lateral_Line_Count,param.depth,param.gridNum,param.x_ele);
+env_disp = mu.image(3*TempParams['Gain1'],
+                    log_env_0,
+                    tempParams['lateral_line_count'],
+                    param['depth'],
+                    param['gridNum'],
+                    param['x_ele'])
 
  
 
