@@ -237,8 +237,8 @@ elif Num_Compounding_Channels == 2 :
     pass
 elif Num_Compounding_Channels == 3 :
     ax[1].plot(f, beamformedSpectralContent1[:,0], label = 'Filter 1')
-    ax[1].plot(f, beamformedSpectralContent2[:,0], label = 'Filter 3')
-    ax[1].plot(f, beamformedSpectralContent3[:,0], label = 'Filter 4')
+    ax[1].plot(f, beamformedSpectralContent2[:,0], label = 'Filter 2')
+    ax[1].plot(f, beamformedSpectralContent3[:,0], label = 'Filter 3')
     ax[1].legend()
 
 
