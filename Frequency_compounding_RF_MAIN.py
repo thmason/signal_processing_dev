@@ -346,7 +346,7 @@ ch2_slider = Slider(ax_ch2_slider, 'channel_1', 0, 1, valinit=1)
 ax_ch3_slider = plt.axes([0.25, 0.1, 0.65, 0.03])
 ch3_slider = Slider(ax_ch3_slider, 'channel_1', 0, 1, valinit=1)
 
-def update(gamma, channel1, channel2, channel3, log_env_1,log_env_2,log_env_3):
+def update(gamma, channel1, channel2, channel3):
     
     log_env_compounded = (channel1*log_env_1 +
                           channel2*log_env_2 +
@@ -366,12 +366,8 @@ def update(gamma, channel1, channel2, channel3, log_env_1,log_env_2,log_env_3):
     ax.imshow(env_disp_compounded)    
     fig.canvas.draw_idle()
 
-gamma_slider.on_changed(lambda val: update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val,
-                                           log_env_1,log_env_2,log_env_3))
-ch1_slider.on_changed(lambda val: update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val,
-                                         log_env_1,log_env_2,log_env_3))
-ch2_slider.on_changed(lambda val: update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val,
-                                         log_env_1,log_env_2,log_env_3))
-ch3_slider.on_changed(lambda val: update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val,
-                                         log_env_1,log_env_2,log_env_3))
+gamma_slider.on_changed(lambda val: update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val))
+ch1_slider.on_changed(lambda val: update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val))
+ch2_slider.on_changed(lambda val: update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val))
+ch3_slider.on_changed(lambda val: update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val))
 plt.show()
