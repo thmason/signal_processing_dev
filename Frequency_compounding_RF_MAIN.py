@@ -341,10 +341,10 @@ ax_ch1_slider = plt.axes([0.25, 0.2, 0.65, 0.03])
 ch1_slider = Slider(ax_ch1_slider, 'channel_1', 0, 1, valinit=1)
 
 ax_ch2_slider = plt.axes([0.25, 0.15, 0.65, 0.03])
-ch2_slider = Slider(ax_ch2_slider, 'channel_1', 0, 1, valinit=1)
+ch2_slider = Slider(ax_ch2_slider, 'channel_2', 0, 1, valinit=1)
 
 ax_ch3_slider = plt.axes([0.25, 0.1, 0.65, 0.03])
-ch3_slider = Slider(ax_ch3_slider, 'channel_1', 0, 1, valinit=1)
+ch3_slider = Slider(ax_ch3_slider, 'channel_3', 0, 1, valinit=1)
 
 def update(gamma, channel1, channel2, channel3):
     
