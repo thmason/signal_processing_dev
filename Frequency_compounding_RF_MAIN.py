@@ -7,6 +7,7 @@ Created on Fri Nov  3 08:46:23 2023
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import scipy.io as sio
 from scipy import signal as sig
 from scipy import interpolate
@@ -320,8 +321,11 @@ env_disp = mu.image(3*tempParams['gain1'],
 
  
 
-# gamma=1.6;
+gamma=1.6;
 
+#env_disp_NonCompounded = imadjust(env_disp,[0 1],[0 1],gamma)
+plt.figure()
+plt.imshow(env_disp)
 # A = 0:255;
 # A=A/255;
 # figure(5)
