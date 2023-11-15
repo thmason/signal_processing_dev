@@ -366,6 +366,8 @@ def update(gamma, channel1, channel2, channel3):
     ax.imshow(env_disp_compounded)    
     fig.canvas.draw_idle()
 
+update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val)
+
 gamma_slider.on_changed(lambda val: update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val))
 ch1_slider.on_changed(lambda val: update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val))
 ch2_slider.on_changed(lambda val: update(gamma_slider.val, ch1_slider.val, ch2_slider.val, ch3_slider.val))
