@@ -8,9 +8,12 @@ Created on Fri Nov  3 08:46:23 2023
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from matplotlib.widgets import Slider
 import scipy.io as sio
 from scipy import signal as sig
 from scipy import interpolate
+from skimage import exposure
+
 import math_utilities as mu
 
 import sys
@@ -262,7 +265,7 @@ elif Num_Compounding_Channels == 2:
 elif Num_Compounding_Channels == 3:
     channel_1 = 1
     channel_2 = 1
-    channel_3 = 0
+    channel_3 = 1
 else:
     channel_1 = 1
     channel_2 = 1
@@ -282,36 +285,6 @@ tempParams['Num_Compounding_Channels'] = Num_Compounding_Channels
 tempParams['gamma'] = gamma;
 tempParams['lateral_line_count'] = Lateral_Line_Count
 
-# path='C:\Users\DavidRoundhill\DavidFiles\SimulationTool\AE_FC_Line_Processor\';
-
-
-# save([path,'ImageDataTemp.mat'],'TempParams','log_env_0','log_env_1','log_env_2','log_env_3','param','-v7.3');
-
-# figure(4)
-
-# set(gcf,'units','pixels','position', [1000 1000 800 80]);
-# set(gcf, 'name', 'non-Compounded Image');
-
-# % Create a slider
-# slider1 = uicontrol('Style', 'slider', 'Position', [50, 30, 200, 20],...
-#     'Min', 0, 'Max', 100, 'Value', Gain, 'Callback', @sliderCallback1);
-
-# % Create another slider
-# slider2 = uicontrol('Style', 'slider', 'Position', [300, 30, 200, 20],...
-#     'Min', 0, 'Max', 100, 'Value', Gain, 'Callback', @sliderCallback2);
-
-
-# % Create a text box to display the slider value 
-
-# txt1 = uicontrol('Style', 'text','Position',[300, 50, 200, 20]);
-# txt2 = uicontrol('Style', 'text','Position',[50, 50, 200, 20]);
-
-   
-# % Initialize the variable
-
-# set(txt1,'String',num2str(Gain));
-# set(txt2,'String',num2str(Gain));
-
 env_disp = mu.image(3*tempParams['gain1'],
                     log_env_0,
                     tempParams['lateral_line_count'],
@@ -323,38 +296,53 @@ env_disp = mu.image(3*tempParams['gain1'],
 
 gamma=1.6;
 
-#env_disp_NonCompounded = imadjust(env_disp,[0 1],[0 1],gamma)
+env_disp_NonCompounded = exposure.adjust_gamma(env_disp, gamma=gamma)
+
 plt.figure()
 plt.imshow(env_disp)
-# A = 0:255;
-# A=A/255;
-# figure(5)
+plt.title('unadjusted')
 
-# grayscale = imadjust(A,[0 1],[0 1],gamma);
-# plot(grayscale,"LineWidth",1, "color", [0.75,0.75,0.75]) 
-# hold off
+plt.figure()
+plt.imshow(env_disp_NonCompounded)
+plt.title('Non compounded')
 
-# figure(1)
-# set(gcf,'units','pixels','position', [1024 1200 900 600]);
-# set(gcf, 'name', 'non-Compounded Image');
-
-# env_disp_NonCompounded = imadjust(env_disp,[0 1],[0 1],gamma);
-
-# imshow(env_disp_NonCompounded, gray)
 
 # Gain=TempParams.Gain2;
+# do compounding
+log_env_compounded = (tempParams['channel_1']*log_env_1 +
+                      tempParams['channel_2']*log_env_2 +
+                      tempParams['channel_3']*log_env_3
+                      )
 
-# log_env_Compounded = (TempParams.Channel_1*log_env_1+TempParams.Channel_2*log_env_2+TempParams.Channel_3*log_env_3);
-# env_disp_Compounded = Image(TempParams.Gain2,log_env_Compounded,TempParams.Lateral_Line_Count,param.depth,param.gridNum,param.x_ele);
+env_disp_compounded = mu.image(tempParams['gain2'],
+                    log_env_compounded,
+                    tempParams['lateral_line_count'],
+                    float(param['depth']),
+                    param['gridNum'],
+                    param['x_ele'])
 
 
-# figure(2)
-# set(gcf,'units','pixels','position', [1400 1200 900 600])
-# set(gcf, 'name', 'Compounded Image');
+
+env_disp_compounded = exposure.adjust_gamma(env_disp_compounded, gamma=gamma)
+
+plt.figure()
+plt.imshow(env_disp_compounded)
+plt.title('compounded')
 
 
-# env_disp_Compounded = imadjust(env_disp_Compounded,[0 1],[0 1],gamma);
+fig, ax = plt.subplots()
+plt.subplots_adjust(bottom=0.25)
+ax.set_title('compounded')
 
+ax_slider = plt.axes([0.25, 0.1, 0.65, 0.03])
+slider = Slider(ax_slider, 'gamma', 0, 2, valinit=1)
 
-# imshow(env_disp_Compounded, gray)
+def update(gamma, env_disp_compounded):
+    ax.clear()    
+    env_disp_compounded = exposure.adjust_gamma(env_disp_compounded, gamma=gamma)
+    ax.imshow(env_disp_compounded)    
+    fig.canvas.draw_idle()
 
+slider.on_changed(lambda val: update(val, env_disp_compounded))
+
+plt.show()
