@@ -34,7 +34,7 @@ comboParams = mat73.loadmat(comboParams_filename)
 
 plt.close('all')    
 # gamma is used to creat a "poor man's" grayscale map" using the matlab function, imadjust
-gamme = 1.6
+gamma = 1.6
 
 
 # get filter parameters
@@ -311,10 +311,10 @@ tempParams['lateral_line_count'] = Lateral_Line_Count
 # set(txt1,'String',num2str(Gain));
 # set(txt2,'String',num2str(Gain));
 
-env_disp = mu.image(3*TempParams['Gain1'],
+env_disp = mu.image(3*tempParams['gain1'],
                     log_env_0,
                     tempParams['lateral_line_count'],
-                    param['depth'],
+                    float(param['depth']),
                     param['gridNum'],
                     param['x_ele'])
 

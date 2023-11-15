@@ -7,6 +7,7 @@ Created on Thu Nov  9 15:55:44 2023
 
 import numpy as np
 from scipy import signal as sig
+from scipy.interpolate import interp2d
 import sys
 
 
@@ -85,33 +86,39 @@ def image(gain,log_env,Lateral_Line_Count,depth,gridNum,x_ele):
 
     # Image size x is in mm
  
-    ImgSize_x=(x_ele(end)-x_ele(1));
+    ImgSize_x=(x_ele[-1]-x_ele[0])
     # --- scan conversion (place holder)
 
     X_RESOLUTION = 1024;     # [pixels]
     # Temporary scale fix mm,cm
     Z_RESOLUTION = 10*(ImgSize_z/ImgSize_x)*(X_RESOLUTION)     # [pixels]
 
-    pre_x=linspace(x_ele(1),x_ele(end),Lateral_Line_Count)
+    pre_x=np.linspace(x_ele[0],x_ele[-1],Lateral_Line_Count)
 
     # use factor of 10 for L7-4
-    # aspect_ratio_correction = (10*ImgSize_z)/ImgSize_x;
+    #aspect_ratio_correction = (10*ImgSize_z)/ImgSize_x;
 
     aspect_ratio_correction = (ImgSize_z)/ImgSize_x
     Z_RESOLUTION=Z_RESOLUTION*aspect_ratio_correction
 
-    # x_pxlsize=ImgSize_x/X_RESOLUTION
-    # z_pxlsize=ImgSize_z/Z_RESOLUTION
+    #x_pxlsize=ImgSize_x/X_RESOLUTION
+    #z_pxlsize=ImgSize_z/Z_RESOLUTION
 
-    pos_vec_x_new = (0:1 / (X_RESOLUTION-1):1) .* ImgSize_x - ImgSize_x / 2;  #lateral
-    pos_vec_z_new = (0:1 / (Z_RESOLUTION-1):1) .* ImgSize_z; % axial
-    [pos_x,pos_z]=meshgrid(pos_vec_x_new,pos_vec_z_new)
-    scale_log_env=interp2(pre_x,pre_z,log_env,pos_x,pos_z)
+    x_step = 1/(X_RESOLUTION-1)
+    z_step = 1/(Z_RESOLUTION-1)
+    pos_vec_x_new = np.arange(0,1+1e-6,x_step) * ImgSize_x - ImgSize_x / 2  #lateral
+    pos_vec_z_new = np.arange(0,1+1e-6,z_step) * ImgSize_z # axial
+    
+    pos_x,pos_z = np.meshgrid(pos_vec_x_new,pos_vec_z_new)
+    
+    # create interpolator
+    interpolator = interp2d(pre_x,pre_z,log_env)    
+    scale_log_env = interpolator(pos_vec_x_new, pos_vec_z_new)
 
     # --- output image normalization (Do we want this???)
-    # env_disp=uint8(255*scale_log_env/max(max(scale_log_env)));
+    #env_disp=uint8(255*scale_log_env/max(max(scale_log_env)));
 
-    env_disp=uint8(gain*scale_log_env)
+    env_disp=(gain*scale_log_env).astype(np.uint8)
     
     return env_disp
 
